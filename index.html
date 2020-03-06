@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Final Project Andrey's Work</title>
+    <script src="https://d3js.org/d3.v4.min.js" charset="utf-8"></script>
+    <script src="https://d3js.org/d3-scale-chromatic.v0.3.min.js"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-dark">
+      <a class="navbar-brand" href="#">Australian Fires Over Time</a>
+    </nav>
+    <div class="container-fluid">
+      <div class="row p-3">
+        <div class="col-4">
+          <div class="card bg-secondary mt-3">
+            <div class="card-body">
+              <h5 class="card-title"><label for="date-selection">Date</label>: <span id="current-date"></span></h5>
+              <input type="range" min="1" max="100" value="0" class="slider" id="date-selection">
+              <button id="autoadvance-btn">Toggle Autoplay</button>
+            </div>
+          </div>
+
+          <div class="card bg-dark text-white mt-3">
+            <div class="card-body">
+              <h5 class="card-title">About</h5>
+              <p>This project was developed as an assignment for INFO 474: Interactive Information Visualization at the <a href="https://ischool.uw.edu/" target="_blank">University of Washington Information School.</a></p>
+              <p class="mb-0">March 2020. <a href="https://github.com/andreybutenko/d3-australian-wildfires-over-time" target="_blank">GitHub.</a>
+            </div>
+          </div>
+        </div>
+        <div class="display col-8">
+          <div class="alert alert-primary mt-3" role="alert" id="loading">
+            The visualization is loading...
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="chart.js"></script>
+  </body>
+</html>

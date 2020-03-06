@@ -1,0 +1,15 @@
+body {
+  background-color: black;
+}
+html, body {
+  height: 100%;
+}
+path.geography {
+  fill: #333;
+}
+input[type="range"] {
+  width: 100%;
+}
+svg {
+  margin: 0 auto;
+}
