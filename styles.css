@@ -17,3 +17,18 @@ svg {
 .range-play input[type="range"] {
   flex: 1;
 }
+
+svg text.title {
+  font-weight: 400;
+  font-size: 16px;
+}
+
+svg text {
+  font-weight: 300;
+  font-size: 14px;
+  alignment-baseline: hanging;
+}
+
+svg text.subtitle {
+  font-weight: 400;
+}
