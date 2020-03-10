@@ -8,8 +8,8 @@ const LEGEND_SPACING = 16;
 const LEGEND_TITLE_FONT_HEIGHT = 16;
 const LEGEND_FONT_HEIGHT = 14;
 
-let svg, map, locations, legend, data, projection, dates, expIntensityScale, intensityScale, frpScale, intervalPlayer;
-
+let svg, map, locations, legend, data, projection, dates, expIntensityScale, intensityScale, frpScale, intervalPlayer, densityScalePow, densityScaleColor;
+const arr = [];
 // Create SVG
 function setupSvg() {
   svg = d3.select('.display')
@@ -181,22 +181,61 @@ function stopPlaying() {
 function plotFiresForDate(date, data) {
   d3.select('#current-date').text(date);
 
-  const satelliteFilter = [...document.getElementsByName('satellites')].map(e => e.checked ? e.value : '').filter(d => !!d);;
-  const timeFilter = [...document.getElementsByName('time')].map(e => e.checked ? e.value : '').filter(d => !!d);;
+  const satelliteFilter = [...document.getElementsByName('satellites')].map(e => e.checked ? e.value : '').filter(d => !!d);
+  const timeFilter = [...document.getElementsByName('time')].map(e => e.checked ? e.value : '').filter(d => !!d);
+  scatterPlot = document.getElementById('scatterplot-enabled').checked;
+  densityPlot = document.getElementById('cdplot-enabled').checked;
+  console.log(scatterPlot, densityPlot)
 
   const plotData = data[date].filter(d => satelliteFilter.includes(d.satellite) && timeFilter.includes(d.daynight));
 
-  const selection = locations.selectAll('.marker')
-    .data(plotData);
-  selection.exit().remove();
-  selection.enter()
-    .append('circle')
-    .attr('class', 'marker')
-    .attr('opacity', 1)
-    .attr('r', d => frpScale(d.frp))
-    .attr('fill', d => intensityScale(d.brightness))
-    .attr('cx', d => projection(d.coords)[0])
-    .attr('cy', d => projection(d.coords)[1])
+  if(scatterPlot) {
+    const selection = locations.selectAll('.marker')
+      .data(plotData);
+    selection.exit().remove();
+    selection.enter()
+      .append('circle')
+      .attr('class', 'marker')
+      .attr('opacity', 1)
+      .attr('r', d => frpScale(d.frp))
+      .attr('fill', d => intensityScale(d.brightness))
+      .attr('cx', d => projection(d.coords)[0])
+      .attr('cy', d => projection(d.coords)[1]);
+  }
+  else {
+    locations.selectAll('.marker').remove();
+  }
+
+  if(densityPlot) {
+    const densityData = d3.contourDensity()
+      .x(d => projection(d.coords)[0])
+      .y(d => projection(d.coords)[1])
+      .weight(d => d.brightness)
+      .size([WIDTH, HEIGHT])(plotData);
+
+    if(!densityScalePow) {
+      densityScalePow = d3.scalePow()
+        .exponent(5)
+        .domain([0, 75])
+        .range([0, 1]);
+      densityScaleColor = d3.interpolate('#ecf0f1', '#3498db')
+    }
+
+    const selection = locations.selectAll('.density')
+      .data(densityData);
+
+    selection.enter()
+      .append('path')
+      .attr('class', 'density')
+      .merge(selection)
+      .attr('d', d3.geoPath())
+      .attr('fill', d => console.log(arr.push(d.value)) || densityScaleColor(densityScalePow(d.value)));
+
+    selection.exit().remove()
+  }
+  else {
+    locations.selectAll('.density').remove();
+  }
 }
 
 setupSvg();

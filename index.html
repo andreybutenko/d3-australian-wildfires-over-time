@@ -5,6 +5,7 @@
     <title>Final Project Andrey's Work</title>
     <script src="https://d3js.org/d3.v4.min.js" charset="utf-8"></script>
     <script src="https://d3js.org/d3-scale-chromatic.v0.3.min.js"></script>
+    <script src="https://d3js.org/d3-contour.v1.min.js"></script>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
     <link rel="stylesheet" href="styles.css">
   </head>
@@ -41,6 +42,7 @@
                   </div>
                 </fieldset>
               </div>
+
               <div class="list-group-item bg-dark">
                 <h6 class="card-subtitle mt-1 mb-2">Time</h6>
                 <fieldset>
@@ -51,6 +53,20 @@
                   <div class="custom-control custom-checkbox">
                     <input type="checkbox" id="time-n" class="custom-control-input" name="time" value="N" checked>
                     <label class="custom-control-label" for="time-n">Nighttime</label>
+                  </div>
+                </fieldset>
+              </div>
+
+              <div class="list-group-item bg-dark">
+                <h6 class="card-subtitle mt-1 mb-2">Data Representation</h6>
+                <fieldset>
+                  <div class="custom-control custom-switch">
+                    <input type="checkbox" id="scatterplot-enabled" class="custom-control-input" checked>
+                    <label class="custom-control-label" for="scatterplot-enabled">Scatterplot</label>
+                  </div>
+                  <div class="custom-control custom-switch">
+                    <input type="checkbox" id="cdplot-enabled" class="custom-control-input">
+                    <label class="custom-control-label" for="cdplot-enabled">Contour Density</label>
                   </div>
                 </fieldset>
               </div>
