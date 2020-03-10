@@ -10,6 +10,7 @@ const LEGEND_FONT_HEIGHT = 14;
 
 let svg, map, locations, legend, data, projection, dates, expIntensityScale, intensityScale, frpScale, intervalPlayer, densityScalePow, densityScaleColor;
 const arr = [];
+
 // Create SVG
 function setupSvg() {
   svg = d3.select('.display')
@@ -183,13 +184,19 @@ function plotFiresForDate(date, data) {
 
   const satelliteFilter = [...document.getElementsByName('satellites')].map(e => e.checked ? e.value : '').filter(d => !!d);
   const timeFilter = [...document.getElementsByName('time')].map(e => e.checked ? e.value : '').filter(d => !!d);
+  
   scatterPlot = document.getElementById('scatterplot-enabled').checked;
   densityPlot = document.getElementById('cdplot-enabled').checked;
-  console.log(scatterPlot, densityPlot)
 
   const plotData = data[date].filter(d => satelliteFilter.includes(d.satellite) && timeFilter.includes(d.daynight));
 
-  if(scatterPlot) {
+  drawScatterPlot(plotData, scatterPlot);
+  drawDensityPlot(plotData, densityPlot);
+}
+
+// Draw scatter plot or clear it according to arguments
+function drawScatterPlot(plotData, shouldDraw) {
+  if(shouldDraw) {
     const selection = locations.selectAll('.marker')
       .data(plotData);
     selection.exit().remove();
@@ -205,8 +212,11 @@ function plotFiresForDate(date, data) {
   else {
     locations.selectAll('.marker').remove();
   }
+}
 
-  if(densityPlot) {
+// Draw density plot or clear it according to arguments
+function drawDensityPlot(plotData, shouldDraw) {
+  if(shouldDraw) {
     const densityData = d3.contourDensity()
       .x(d => projection(d.coords)[0])
       .y(d => projection(d.coords)[1])
