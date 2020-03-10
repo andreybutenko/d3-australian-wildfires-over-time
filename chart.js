@@ -1,26 +1,104 @@
 // Second, a map of the fires over time within Australia
 
-const HEIGHT = 600;
-const WIDTH = 800;
-const MARGIN = 20;
-const LEGEND_WIDTH = 200;
-const LEGEND_SPACING = 16;
-const LEGEND_TITLE_FONT_HEIGHT = 16;
-const LEGEND_FONT_HEIGHT = 14;
+const MINI_HEIGHT = 100;
 
-let svg, map, locations, legend, data, projection, dates, expIntensityScale, intensityScale, frpScale, intervalPlayer, densityScalePow, densityScaleColor;
+const HEIGHT = 600; // Height for display plot
+const WIDTH = 800; // Width for display plot
+const MARGIN = 20; // Margin for display plot
+
+const LEGEND_WIDTH = 200; // Width of display plot legend
+const LEGEND_SPACING = 16; // Spacing unit for display plot legend
+const LEGEND_TITLE_FONT_HEIGHT = 16; // Text height for display plot legend titles
+const LEGEND_FONT_HEIGHT = 14; // Text height for display plot legend
+
+let miniSvg, svg, map, locations, legend, data, entriesByDate, projection, dates, expIntensityScale, intensityScale, frpScale, intervalPlayer, densityScalePow, densityScaleColor;
 const arr = [];
+let mouseDown = false;
 
-// Create SVG
-function setupSvg() {
+// Create display SVG
+function setupDisplaySvg() {
   svg = d3.select('.display')
     .append('svg')
     .attr('width', WIDTH + 3 * MARGIN + LEGEND_WIDTH)
     .attr('height', HEIGHT + 2 * MARGIN);
 
   map = svg.append('g').attr('transform', `translate(${MARGIN}, ${MARGIN})`);
+  map.append('text').attr('id', 'date-display-svg');
   locations = svg.append('g').attr('transform', `translate(${MARGIN}, ${MARGIN})`);
   legend = svg.append('g').attr('transform', `translate(${WIDTH + 2 * MARGIN}, ${MARGIN})`);
+}
+
+// Create selector/minihistogram SVG
+function setupSelectorSvg() {
+  const miniWidth = document.getElementById('date-selection').clientWidth;
+  miniSvg = d3.select('.selector-svg')
+    .append('svg')
+    .attr('width', miniWidth)
+    .attr('height', MINI_HEIGHT);
+  
+  entriesByDate = dates.map(d => data[d].length);
+
+  const yScale = d3.scaleLinear()
+    .domain(d3.extent(entriesByDate, d => +d))
+    .range([0, MINI_HEIGHT]);
+  
+  const barWidth = Math.round(miniWidth / entriesByDate.length);
+
+  const selection = miniSvg.selectAll('.date-bar')
+    .data(entriesByDate)
+    .enter();
+
+  selection.append('rect')
+    .attr('class', 'date-bar')
+    .attr('id', (d, i) => `date-bar-${i}`)
+    .attr('x', (d, i) => (i + 1) * barWidth)
+    .attr('y', d => MINI_HEIGHT - yScale(d))
+    .attr('height', d => yScale(d))
+    .attr('width', barWidth)
+    .attr('fill', '#dee2e6')
+    .on('mouseup', getInteractiveListener('mouseup'))
+    .on('mouseover', getInteractiveListener('mouseover'))
+    .on('mousedown', getInteractiveListener('mousedown'));
+
+  selection.append('rect')
+    .attr('class', 'date-bar-alt')
+    .attr('id', (d, i) => `date-bar-alt-${i}`)
+    .attr('x', (d, i) => (i + 1) * barWidth)
+    .attr('y', 0)
+    .attr('height', d => MINI_HEIGHT - yScale(d))
+    .attr('width', barWidth)
+    .attr('fill', '#343a40')
+    .on('mouseup', getInteractiveListener('mouseup'))
+    .on('mouseover', getInteractiveListener('mouseover'))
+    .on('mousedown', getInteractiveListener('mousedown'));
+}
+
+// Update the selector/minihistogram svg
+function updateSelectorSvg() {
+  const currentDateIndex = getCurrentDateIndex() - 1;
+  miniSvg.selectAll('.date-bar').attr('fill', '#dee2e6');
+  miniSvg.selectAll('.date-bar-alt').attr('fill', '#343a40');
+  miniSvg.select(`#date-bar-${currentDateIndex}`).attr('fill', '#007bff')
+  miniSvg.select(`#date-bar-alt-${currentDateIndex}`).attr('fill', '#515961')
+}
+
+// Get a listener for the selector/minihistogram interactivity
+function getInteractiveListener(event) {
+  return (d, i) => {
+    if(event == 'mousedown') {
+      mouseDown = true;
+    }
+    if(event == 'mouseup') {
+      mouseDown = false;
+    }
+    
+    if(event != 'mouseover' || (event == 'mouseover' && mouseDown)) {
+      stopPlaying()
+      let value = i + 1;
+      d3.select('#date-selection').property('value', value);
+      plotFiresForDate(dates[value], data);
+    }
+  }
 }
 
 // Create legend
@@ -138,7 +216,7 @@ function onDataLoad(geojson, data_) {
     .attr('d', geoPath);
 
   createLegend()
-
+  setupSelectorSvg();
   startPlaying();
 }
 
@@ -181,10 +259,12 @@ function stopPlaying() {
 // Given a date and a dataset, show geographic scatterplot with applied filters.
 function plotFiresForDate(date, data) {
   d3.select('#current-date').text(date);
+  d3.select('#date-display-svg').text(date);
+  updateSelectorSvg();
 
   const satelliteFilter = [...document.getElementsByName('satellites')].map(e => e.checked ? e.value : '').filter(d => !!d);
   const timeFilter = [...document.getElementsByName('time')].map(e => e.checked ? e.value : '').filter(d => !!d);
-  
+
   scatterPlot = document.getElementById('scatterplot-enabled').checked;
   densityPlot = document.getElementById('cdplot-enabled').checked;
 
@@ -248,7 +328,7 @@ function drawDensityPlot(plotData, shouldDraw) {
   }
 }
 
-setupSvg();
+setupDisplaySvg();
 
 d3.queue()
   .defer(d3.json, 'data/australian-states.json')

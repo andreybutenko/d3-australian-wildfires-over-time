@@ -26,17 +26,18 @@ svg path.geography {
   fill: #333;
 }
 
-svg text.title {
-  font-weight: 400;
-  font-size: 16px;
-}
-
 svg text {
   font-weight: 300;
   font-size: 14px;
   alignment-baseline: hanging;
 }
-
+svg text.title {
+  font-weight: 400;
+  font-size: 16px;
+}
 svg text.subtitle {
   font-weight: 400;
+}
+svg text#date-display-svg {
+  fill: #fff;
 }
