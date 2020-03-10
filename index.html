@@ -10,20 +10,54 @@
   </head>
   <body>
     <nav class="navbar navbar-expand-lg navbar-light bg-dark">
-      <a class="navbar-brand" href="#">Australian Fires Over Time</a>
+      <a class="navbar-brand text-white" href="#">Australian Fires Over Time</a>
     </nav>
     <div class="container-fluid">
       <div class="row p-3">
         <div class="col-4">
-          <div class="card bg-secondary mt-3">
-            <div class="card-body">
-              <h5 class="card-title"><label for="date-selection">Date</label>: <span id="current-date"></span></h5>
-              <input type="range" min="1" max="100" value="0" class="slider" id="date-selection">
-              <button id="autoadvance-btn">Toggle Autoplay</button>
+          <div class="card bg-dark text-white mt-3">
+            <div class="card-header">
+              <h5 class="card-title mt-2 mb-2">Plot Filters</h5>
+            </div>
+            <div class="list-group list-group-flush">
+              <div class="list-group-item bg-dark">
+                <h6 class="card-subtitle mt-1 mb-2"><label for="date-selection">Date</label>: <span id="current-date"></span></h6>
+                <div class="range-play">
+                  <input type="range" min="1" max="100" value="0" class="slider custom-range" id="date-selection">
+                  <button id="autoadvance-btn" class="btn btn-light btn-sm ml-2">Toggle Autoplay</button>
+                </div>
+              </div>
+
+              <div class="list-group-item bg-dark">
+                <h6 class="card-subtitle mt-1 mb-2">Satellites</h6>
+                <fieldset>
+                  <div class="custom-control custom-checkbox">
+                    <input type="checkbox" id="satellites-aqua" class="custom-control-input" name="satellites" value="Aqua" checked>
+                    <label class="custom-control-label" for="satellites-aqua">Aqua</label>
+                  </div>
+                  <div class="custom-control custom-checkbox">
+                    <input type="checkbox" id="satellites-terra" class="custom-control-input" name="satellites" value="Terra" checked>
+                    <label class="custom-control-label" for="satellites-terra">Terra</label>
+                  </div>
+                </fieldset>
+              </div>
+              <div class="list-group-item bg-dark">
+                <h6 class="card-subtitle mt-1 mb-2">Time</h6>
+                <fieldset>
+                  <div class="custom-control custom-checkbox">
+                    <input type="checkbox" id="time-d" class="custom-control-input" name="time" value="D" checked>
+                    <label class="custom-control-label" for="time-d">Daytime</label>
+                  </div>
+                  <div class="custom-control custom-checkbox">
+                    <input type="checkbox" id="time-n" class="custom-control-input" name="time" value="N" checked>
+                    <label class="custom-control-label" for="time-n">Nighttime</label>
+                  </div>
+                </fieldset>
+              </div>
             </div>
           </div>
 
-          <div class="card bg-dark text-white mt-3">
+          <div class="card bg-transparent text-muted mt-3">
             <div class="card-body">
               <h5 class="card-title">About</h5>
               <p>This project was developed as an assignment for INFO 474: Interactive Information Visualization at the <a href="https://ischool.uw.edu/" target="_blank">University of Washington Information School.</a></p>

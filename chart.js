@@ -4,7 +4,7 @@ const HEIGHT = 600;
 const WIDTH = 800;
 const MARGIN = 100;
 
-let svg, map, locations, data, projection, dates, intensityScale, intervalPlayer;
+let svg, map, locations, data, projection, dates, intensityScale, frpScale, intervalPlayer;
 
 function setupSvg() {
   svg = d3.select('.display')
@@ -17,9 +17,12 @@ function setupSvg() {
 }
 
 function onDataLoad(geojson, data_) {
-  data = data_.map(d => ({ ...d, brightness: parseInt(d.brightness) || 0, coords: [d.longitude, d.latitude] }));
+  data = data_;
   // Get unique dates:
-  dates = data.map(d => d.acq_date).filter((x, i, a) => a.indexOf(x) == i).sort();
+  dates = Object.keys(data).filter((x, i, a) => a.indexOf(x) == i).sort();
+  for(let key in data) {
+    data[key] = data[key].map(d => ({ ...d, brightness: parseInt(d.brightness) || 0, coords: [d.longitude, d.latitude] }))
+  }
 
   d3.select('#date-selection')
     .attr('min', 0)
@@ -30,13 +33,19 @@ function onDataLoad(geojson, data_) {
     });
 
   d3.select('#autoadvance-btn').on('click', togglePlaying);
+  d3.selectAll('input[type="checkbox"]').on('change', () => plotFiresForDate(dates[getCurrentDateIndex()], data));
 
   projection = d3.geoMercator()
     .fitSize([WIDTH, HEIGHT], geojson);
   
-    // console.log(d3.extent(data, d => +d.brightness))
-  intensityScale = d3.scaleSequential(d3.interpolateOranges)
-    .domain(d3.extent(data, d => +d.brightness))
+  const expScale = d3.scalePow()
+    .exponent(5)
+    .domain([300, 507])
+    .range([0, 1])
+  intensityScale = d3.scaleSequential(d => d3.interpolate('#F8F558', '#E0380A')(expScale(d)))
+  frpScale = d3.scaleLinear()
+    .domain([0, 11200])
+    .range([3, 8])
   
   const geoPath = d3.geoPath()
     .projection(projection);
@@ -60,16 +69,20 @@ function togglePlaying() {
   }
 }
 
+function getCurrentDateIndex() {
+  const dateSelection = d3.select('#date-selection');
+  return parseInt(dateSelection.property('value')) + 1;
+}
+
 function startPlaying() {
   intervalPlayer = setInterval(() => {
-    const dateSelection = d3.select('#date-selection');
-    let value = parseInt(dateSelection.property('value')) + 1;
+    let value = getCurrentDateIndex() + 1;
 
     if(value >= dates.length) {
       value = 0;
     }
 
-    dateSelection.property('value', value);
+    d3.select('#date-selection').property('value', value);
     plotFiresForDate(dates[value], data);
   }, 250);
 }
@@ -81,7 +94,12 @@ function stopPlaying() {
 
 function plotFiresForDate(date, data) {
   d3.select('#current-date').text(date);
-  const plotData = data.filter(d => d.acq_date == date);
+
+  const satelliteFilter = [...document.getElementsByName('satellites')].map(e => e.checked ? e.value : '').filter(d => !!d);;
+  const timeFilter = [...document.getElementsByName('time')].map(e => e.checked ? e.value : '').filter(d => !!d);;
+
+  const plotData = data[date].filter(d => satelliteFilter.includes(d.satellite) && timeFilter.includes(d.daynight));
+
   const selection = locations.selectAll('.marker')
     .data(plotData);
   selection.exit().remove();
@@ -89,7 +107,7 @@ function plotFiresForDate(date, data) {
     .append('circle')
     .attr('class', 'marker')
     .attr('opacity', 1)
-    .attr('r', 3)
+    .attr('r', d => frpScale(d.frp))
     .attr('fill', d => intensityScale(d.brightness))
     .attr('cx', d => projection(d.coords)[0])
     .attr('cy', d => projection(d.coords)[1])
@@ -99,11 +117,9 @@ setupSvg();
 
 d3.queue()
   .defer(d3.json, 'data/australian-states.json')
-  .defer(d3.csv, 'data/fire_archive_M6_96619.csv')
-  .defer(d3.csv, 'data/fire_archive_M6_96619.csv')
+  .defer(d3.json, 'data/data.json')
   .awaitAll((err, results) => {
     d3.select('#loading').remove();
-    // onDataLoad(results[0], [...results[1]]);
-    onDataLoad(results[0], [...results[1], ...results[2]]);
+    onDataLoad(results[0], results[1]);
   });
 

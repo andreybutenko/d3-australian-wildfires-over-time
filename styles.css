@@ -7,9 +7,13 @@ html, body {
 path.geography {
   fill: #333;
 }
-input[type="range"] {
-  width: 100%;
-}
 svg {
   margin: 0 auto;
+}
+.range-play {
+  display: flex;
+  align-items: center;
+}
+.range-play input[type="range"] {
+  flex: 1;
 }
