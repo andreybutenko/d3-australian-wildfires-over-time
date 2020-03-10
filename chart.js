@@ -206,6 +206,8 @@ d3.queue()
   .defer(d3.json, 'data/data.json')
   .awaitAll((err, results) => {
     d3.select('#loading').remove();
+    const display = d3.select('.display');
+    display.attr('class', display.attr('class') + ' centered');
     onDataLoad(results[0], results[1]);
   });
 

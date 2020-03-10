@@ -4,18 +4,26 @@ body {
 html, body {
   height: 100%;
 }
-path.geography {
-  fill: #333;
+
+.display.centered {
+  display: flex;
+  align-items: center;
 }
-svg {
+.display.centered svg {
   margin: 0 auto;
 }
+
 .range-play {
   display: flex;
+  justify-content: flex-start;
   align-items: center;
 }
 .range-play input[type="range"] {
   flex: 1;
+}
+
+svg path.geography {
+  fill: #333;
 }
 
 svg text.title {
