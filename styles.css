@@ -7,7 +7,6 @@ html, body {
 
 .display.centered {
   display: flex;
-  align-items: center;
 }
 .display.centered svg {
   margin: 0 auto;
